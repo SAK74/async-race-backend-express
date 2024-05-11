@@ -1,0 +1,26 @@
+{
+  "name": "async-race-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsnd --respawn src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "race",
+    "backend"
+  ],
+  "author": "SAK74",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "typescript": "^5.4.5"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.12.11",
+    "ts-node-dev": "^2.0.0"
+  }
+}
