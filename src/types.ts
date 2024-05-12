@@ -9,8 +9,3 @@ export type Winner = {
   wins: number;
   time: number;
 };
-
-export enum StatusCode {
-  "OK" = 200,
-  "NOT FOUND" = 404,
-}

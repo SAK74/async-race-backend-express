@@ -16,7 +16,7 @@ router
   .get((_, resp) => {
     resp.json(getAllCars());
   })
-  .post<{ id: string }, {}, Omit<Car, "id">>((req, resp) => {
+  .post<{ id: string }, Car, Omit<Car, "id">>((req, resp) => {
     const car = req.body;
     const createdCar = createCar(car);
     resp.json(createdCar);
@@ -25,17 +25,17 @@ router
 router
   .route("/:id")
   .get((req, resp) => {
-    const car = getCarById(Number(req.params.id));
+    const car = getCarById(+req.params.id);
     if (car) {
       resp.json(car);
     } else {
       resp.status(StatusCode["NOT FOUND"]).end();
     }
   })
-  .put<{ id: string }, {}, Omit<Car, "id">>((req, resp) => {
+  .put<{ id: string }, Car, Omit<Car, "id">>((req, resp) => {
     const id = req.params.id;
     const car = req.body;
-    const updatedCar = updateCar({ ...car, id: Number(id) });
+    const updatedCar = updateCar({ ...car, id: +id });
     if (updatedCar) {
       resp.json(updatedCar);
     } else {
@@ -44,7 +44,7 @@ router
     resp.json();
   })
   .delete((req, resp) => {
-    if (deleteCar(Number(req.params.id))) {
+    if (deleteCar(+req.params.id)) {
       resp.status(StatusCode.OK).end();
     }
     resp.status(StatusCode["NOT FOUND"]).end();
