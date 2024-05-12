@@ -1,23 +1,45 @@
 import { winners } from "../../fakeData";
-import { randomInt } from "node:crypto";
-import { type Winner } from "types";
+import { Order, type Sort, type Winner } from "../../types";
 import { splitedArray } from "../../utils/splitedArray";
 
-export const getAllWinners = (page: number = 1, limit?: number) => {
+export const getAllWinners = (
+  page: number = 1,
+  limit?: number,
+  sort?: Sort,
+  order: Order = Order.ASCENDING
+) => {
+  const winnersRes = !sort
+    ? winners
+    : winners.sort((a, b) => {
+        switch (sort) {
+          case "id":
+            return order === Order.ASCENDING ? a.id - b.id : b.id - a.id;
+          case "time":
+            return order === Order.ASCENDING
+              ? a.time - b.time
+              : b.time - a.time;
+          case "wins":
+            return order === Order.ASCENDING
+              ? a.wins - b.wins
+              : b.wins - a.wins;
+        }
+      });
   if (!limit) {
-    return { winners, count: winners.length };
+    return { winners: winnersRes, count: winners.length };
   }
-  const splitedWinners = splitedArray(winners, limit);
+  const splitedWinners = splitedArray(winnersRes, limit);
   return { winners: splitedWinners[page - 1], count: winners.length };
 };
 
 export const getWinnerById = (id: number) =>
   winners.find((winner) => winner.id === id);
 
-export const createWinner = (winner: Omit<Winner, "id">) => {
-  const id = randomInt(999);
-  winners.push({ ...winner, id });
-  return { ...winner, id };
+export const createWinner = (winner: Winner) => {
+  const isPresent = winners.indexOf(winner) !== -1;
+  if (!isPresent) {
+    winners.push(winner);
+    return winner;
+  }
 };
 
 export const updateWinner = (winner: Winner) => {

@@ -3,6 +3,7 @@ import carRouter from "./routes/cars/controller";
 import winnersRouter from "./routes/winners/controller";
 import "dotenv/config";
 import cors, { CorsOptions } from "cors";
+import engineRouter from "./routes/engine/controller";
 
 const PORT = process.env.PORT || 3000;
 const corsOptions: CorsOptions = {
@@ -27,6 +28,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use("/garage", carRouter);
 app.use("/winners", winnersRouter);
+app.use("/engine", engineRouter);
 app.use("/", rootHandler);
 
 app.listen(PORT, () => {

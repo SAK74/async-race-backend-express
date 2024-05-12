@@ -6,26 +6,38 @@ import {
   getWinnerById,
   updateWinner,
 } from "./service";
-import { type Winner } from "types";
+import { Order, type Sort, type Winner } from "../../types";
 import { StatusCode } from "../../statusCodes";
 
 const router = Router();
 router
   .route("/")
-  .get<{}, Winner[], null, { _page?: string; _limit?: string }>((req, resp) => {
+  .get<
+    {},
+    Winner[],
+    null,
+    { _page?: string; _limit?: string; _sort?: Sort; _order?: Order }
+  >((req, resp) => {
+    const { _page, _limit, _sort, _order } = req.query;
     const { winners, count } = getAllWinners(
-      Number(req.query._page) || 1,
-      Number(req.query._limit) || undefined
+      Number(_page) || 1,
+      Number(_limit) || undefined,
+      _sort,
+      _order
     );
     if (req.query._limit) {
       resp.set("X-Total-Count", count.toString());
     }
     resp.json(winners);
   })
-  .post<{ id: string }, Winner, Omit<Winner, "id">>((req, resp) => {
+  .post<{ id: string }, Winner, Winner>((req, resp) => {
     const winner = req.body;
     const createdWinner = createWinner(winner);
-    resp.json(createdWinner);
+    if (createdWinner) {
+      resp.json(createdWinner);
+    } else {
+      resp.status(StatusCode["INTERNAL SERVER ERROR"]).end();
+    }
   });
 
 router
