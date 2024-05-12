@@ -1,8 +1,15 @@
 import { winners } from "../../fakeData";
 import { randomInt } from "node:crypto";
 import { type Winner } from "types";
+import { splitedArray } from "../../utils/splitedArray";
 
-export const getAllWinners = () => winners;
+export const getAllWinners = (page: number = 1, limit?: number) => {
+  if (!limit) {
+    return { winners, count: winners.length };
+  }
+  const splitedWinners = splitedArray(winners, limit);
+  return { winners: splitedWinners[page - 1], count: winners.length };
+};
 
 export const getWinnerById = (id: number) =>
   winners.find((winner) => winner.id === id);

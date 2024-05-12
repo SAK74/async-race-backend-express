@@ -12,8 +12,15 @@ import { StatusCode } from "../../statusCodes";
 const router = Router();
 router
   .route("/")
-  .get((_, resp) => {
-    resp.json(getAllWinners());
+  .get<{}, Winner[], null, { _page?: string; _limit?: string }>((req, resp) => {
+    const { winners, count } = getAllWinners(
+      Number(req.query._page) || 1,
+      Number(req.query._limit) || undefined
+    );
+    if (req.query._limit) {
+      resp.set("X-Total-Count", count.toString());
+    }
+    resp.json(winners);
   })
   .post<{ id: string }, Winner, Omit<Winner, "id">>((req, resp) => {
     const winner = req.body;

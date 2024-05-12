@@ -13,8 +13,15 @@ const router = Router();
 
 router
   .route("/")
-  .get((_, resp) => {
-    resp.json(getAllCars());
+  .get<{}, Car[], null, { _page?: string; _limit?: string }>((req, resp) => {
+    const { cars, count } = getAllCars(
+      Number(req.query._page) || 1,
+      Number(req.query._limit) || undefined
+    );
+    if (req.query._limit) {
+      resp.set("X-Total-Count", count.toString());
+    }
+    resp.json(cars);
   })
   .post<{ id: string }, Car, Omit<Car, "id">>((req, resp) => {
     const car = req.body;
