@@ -51,7 +51,7 @@ router
     } catch (err) {
       if (
         err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.code === "2025"
+        err.code === "P2025"
       ) {
         resp.status(StatusCode["NOT FOUND"]).end();
       } else {
@@ -68,7 +68,7 @@ router
     } catch (err) {
       if (
         err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.code === "2025"
+        err.code === "P2025"
       ) {
         resp.status(StatusCode["NOT FOUND"]).end();
       } else {
@@ -85,7 +85,7 @@ router
     } catch (err) {
       if (
         err instanceof Prisma.PrismaClientKnownRequestError &&
-        err.code === "2025"
+        err.code === "P2025"
       ) {
         resp.status(StatusCode["NOT FOUND"]).end();
       } else {

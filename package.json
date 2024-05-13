@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsnd --respawn src/index.ts",
-    "build": "tsc",
+    "build": "prisma generate --no-engine & tsc",
     "start": "node dist/index.js"
   },
   "keywords": [
@@ -16,6 +16,7 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^5.13.0",
+    "@prisma/extension-accelerate": "^1.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2"
