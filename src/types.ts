@@ -1,14 +1,18 @@
-export type Car = {
-  name: string;
-  color: string;
-  id: number;
-};
+import type { Car as PrismaCar, Winner as PrismaWinner } from "@prisma/client";
 
-export type Winner = {
-  id: number;
-  wins: number;
-  time: number;
-};
+// export type Car = {
+//   name: string;
+//   color: string;
+//   id: number;
+// };
+export type Car = PrismaCar;
+
+// export type Winner = {
+//   id: number;
+//   wins: number;
+//   time: number;
+// };
+export type Winner = PrismaWinner;
 
 export enum STATUS {
   STARTED = "started",

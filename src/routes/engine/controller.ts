@@ -69,6 +69,7 @@ router.patch<
     if (new Date().getMilliseconds() % 3 === 0) {
       setTimeout(() => {
         delete state.blocked[id];
+        res.statusMessage = "Engine damage...";
         res
           .append("Content-Type", "application/json")
           .status(StatusCode["INTERNAL SERVER ERROR"])

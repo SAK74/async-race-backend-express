@@ -1,37 +1,30 @@
-import { garage as cars } from "../../fakeData";
-import { randomInt } from "node:crypto";
 import { type Car } from "types";
 import { splitedArray } from "../../utils/splitedArray";
+import db from "../../db";
 
-export const getAllCars = (page: number = 1, limit?: number) => {
+export const getAllCars = async (page: number = 1, limit?: number) => {
+  const cars = await db.car.findMany({ orderBy: { id: "asc" } });
   if (!limit) {
     return { cars, count: cars.length };
   }
   const splitedCars = splitedArray(cars, limit);
-  return { cars: splitedCars[page - 1], count: cars.length };
+  return {
+    cars: splitedCars[Math.min(page - 1, splitedCars.length - 1)],
+    count: cars.length,
+  };
 };
 
-export const getCarById = (id: number) => cars.find((car) => car.id === id);
-
-export const createCar = (car: Omit<Car, "id">) => {
-  const id = randomInt(999);
-  cars.push({ ...car, id });
-  return { ...car, id };
+export const getCarById = async (id: number) => {
+  return await db.car.findUniqueOrThrow({ where: { id } });
 };
 
-export const updateCar = (car: Car) => {
-  const index = cars.findIndex(({ id }) => id === car.id);
-  if (index !== -1) {
-    cars[index] = car;
-    return cars[index];
-  }
+export const createCar = async (car: Omit<Car, "id">) => {
+  return await db.car.create({ data: car });
 };
 
-export const deleteCar = (id: number) => {
-  const index = cars.findIndex((car) => id === car.id);
-  if (index !== -1) {
-    cars.splice(index, 1);
-    return true;
-  }
-  return false;
+export const updateCar = async ({ id, color, name }: Car) =>
+  await db.car.update({ where: { id }, data: { name, color } });
+
+export const deleteCar = async (id: number) => {
+  return await db.car.delete({ where: { id }, select: { name: true } });
 };

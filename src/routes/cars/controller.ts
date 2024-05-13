@@ -8,53 +8,91 @@ import {
 } from "./service";
 import { type Car } from "types";
 import { StatusCode } from "../../statusCodes";
+import { Prisma } from "@prisma/client";
 
 const router = Router();
 
 router
   .route("/")
-  .get<{}, Car[], null, { _page?: string; _limit?: string }>((req, resp) => {
-    const { cars, count } = getAllCars(
-      Number(req.query._page) || 1,
-      Number(req.query._limit) || undefined
-    );
-    if (req.query._limit) {
-      resp.set("X-Total-Count", count.toString());
+  .get<{}, Car[], null, { _page?: string; _limit?: string }>(
+    async (req, resp) => {
+      try {
+        const { cars, count } = await getAllCars(
+          Number(req.query._page) || 1,
+          Number(req.query._limit) || undefined
+        );
+        if (req.query._limit) {
+          resp.set("X-Total-Count", count.toString());
+        }
+        resp.json(cars);
+      } catch (err) {
+        console.error(err);
+        resp.status(StatusCode["INTERNAL SERVER ERROR"]).end();
+      }
     }
-    resp.json(cars);
-  })
-  .post<{ id: string }, Car, Omit<Car, "id">>((req, resp) => {
-    const car = req.body;
-    const createdCar = createCar(car);
-    resp.json(createdCar);
+  )
+  .post<{ id: string }, Car, Omit<Car, "id">>(async (req, resp) => {
+    try {
+      const car = req.body;
+      const createdCar = await createCar(car);
+      resp.json(createdCar);
+    } catch (err) {
+      console.error(err);
+      resp.status(StatusCode["INTERNAL SERVER ERROR"]).end();
+    }
   });
 
 router
   .route("/:id")
-  .get((req, resp) => {
-    const car = getCarById(+req.params.id);
-    if (car) {
+  .get(async (req, resp) => {
+    try {
+      const car = await getCarById(+req.params.id);
       resp.json(car);
-    } else {
-      resp.status(StatusCode["NOT FOUND"]).end();
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === "2025"
+      ) {
+        resp.status(StatusCode["NOT FOUND"]).end();
+      } else {
+        console.error(err);
+        resp.status(StatusCode["INTERNAL SERVER ERROR"]).end();
+      }
     }
   })
-  .put<{ id: string }, Car, Omit<Car, "id">>((req, resp) => {
+  .put<{ id: string }, Car, Omit<Car, "id">>(async (req, resp) => {
     const id = req.params.id;
     const car = req.body;
-    const updatedCar = updateCar({ ...car, id: +id });
-    if (updatedCar) {
-      resp.json(updatedCar);
-    } else {
-      resp.status(StatusCode["NOT FOUND"]).end();
+    try {
+      resp.json(await updateCar({ ...car, id: +id }));
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === "2025"
+      ) {
+        resp.status(StatusCode["NOT FOUND"]).end();
+      } else {
+        console.error(err);
+        resp.status(StatusCode["INTERNAL SERVER ERROR"]).end();
+      }
     }
-    resp.json();
   })
-  .delete((req, resp) => {
-    if (deleteCar(+req.params.id)) {
+  .delete(async (req, resp) => {
+    try {
+      await deleteCar(+req.params.id);
+
       resp.status(StatusCode.OK).end();
+    } catch (err) {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === "2025"
+      ) {
+        resp.status(StatusCode["NOT FOUND"]).end();
+      } else {
+        console.error(err);
+        resp.status(StatusCode["INTERNAL SERVER ERROR"]).end();
+      }
     }
-    resp.status(StatusCode["NOT FOUND"]).end();
   });
 
 export default router;
