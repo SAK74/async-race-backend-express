@@ -17,9 +17,9 @@ model Car {
 }
 
 model Winner {
-  id   Int @unique
+  id   Int   @unique
   wins Int
-  time Int
+  time Float
 
   @@map("winners")
 }

@@ -9,6 +9,7 @@ import {
 import { type Car } from "types";
 import { StatusCode } from "../../statusCodes";
 import { Prisma } from "@prisma/client";
+import { handleServerError } from "../../utils/handleServerError";
 
 const router = Router();
 
@@ -26,19 +27,18 @@ router
         }
         resp.json(cars);
       } catch (err) {
-        console.error(err);
-        resp.status(StatusCode["INTERNAL SERVER ERROR"]).end();
+        handleServerError(err, resp);
       }
     }
   )
+
   .post<{ id: string }, Car, Omit<Car, "id">>(async (req, resp) => {
     try {
       const car = req.body;
       const createdCar = await createCar(car);
       resp.json(createdCar);
     } catch (err) {
-      console.error(err);
-      resp.status(StatusCode["INTERNAL SERVER ERROR"]).end();
+      handleServerError(err, resp);
     }
   });
 
@@ -55,11 +55,11 @@ router
       ) {
         resp.status(StatusCode["NOT FOUND"]).end();
       } else {
-        console.error(err);
-        resp.status(StatusCode["INTERNAL SERVER ERROR"]).end();
+        handleServerError(err, resp);
       }
     }
   })
+
   .put<{ id: string }, Car, Omit<Car, "id">>(async (req, resp) => {
     const id = req.params.id;
     const car = req.body;
@@ -72,11 +72,11 @@ router
       ) {
         resp.status(StatusCode["NOT FOUND"]).end();
       } else {
-        console.error(err);
-        resp.status(StatusCode["INTERNAL SERVER ERROR"]).end();
+        handleServerError(err, resp);
       }
     }
   })
+
   .delete(async (req, resp) => {
     try {
       await deleteCar(+req.params.id);
@@ -89,8 +89,7 @@ router
       ) {
         resp.status(StatusCode["NOT FOUND"]).end();
       } else {
-        console.error(err);
-        resp.status(StatusCode["INTERNAL SERVER ERROR"]).end();
+        handleServerError(err, resp);
       }
     }
   });

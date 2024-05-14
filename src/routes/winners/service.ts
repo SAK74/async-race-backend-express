@@ -1,60 +1,37 @@
-import { winners } from "../../fakeData";
 import { Order, type Sort, type Winner } from "../../types";
 import { splitedArray } from "../../utils/splitedArray";
+import db from "../../db";
+import { Prisma } from "@prisma/client";
 
-export const getAllWinners = (
+export const getAllWinners = async (
   page: number = 1,
   limit?: number,
   sort?: Sort,
   order: Order = Order.ASCENDING
 ) => {
-  const winnersRes = !sort
-    ? winners
-    : winners.sort((a, b) => {
-        switch (sort) {
-          case "id":
-            return order === Order.ASCENDING ? a.id - b.id : b.id - a.id;
-          case "time":
-            return order === Order.ASCENDING
-              ? a.time - b.time
-              : b.time - a.time;
-          case "wins":
-            return order === Order.ASCENDING
-              ? a.wins - b.wins
-              : b.wins - a.wins;
-        }
-      });
+  const orderBy: Prisma.WinnerOrderByWithRelationInput | undefined = sort && {
+    [sort]: order === Order.ASCENDING ? "asc" : "desc",
+  };
+  const winners = await db.winner.findMany({ orderBy });
+
   if (!limit) {
-    return { winners: winnersRes, count: winners.length };
+    return { winners, count: winners.length };
   }
-  const splitedWinners = splitedArray(winnersRes, limit);
+  const splitedWinners = splitedArray(winners, limit);
   return { winners: splitedWinners[page - 1], count: winners.length };
 };
 
-export const getWinnerById = (id: number) =>
-  winners.find((winner) => winner.id === id);
+export const getWinnerById = async (id: number) =>
+  await db.winner.findUniqueOrThrow({ where: { id } });
 
-export const createWinner = (winner: Winner) => {
-  const isPresent = winners.indexOf(winner) !== -1;
-  if (!isPresent) {
-    winners.push(winner);
-    return winner;
-  }
-};
+export const createWinner = async (winner: Winner) =>
+  await db.winner.create({ data: winner });
 
-export const updateWinner = (winner: Winner) => {
-  const index = winners.findIndex(({ id }) => id === winner.id);
-  if (index !== -1) {
-    winners[index] = winner;
-    return winners[index];
-  }
-};
+export const updateWinner = async ({ id, time, wins }: Winner) =>
+  await db.winner.update({
+    where: { id },
+    data: { time, wins },
+  });
 
-export const deleteWinner = (id: number) => {
-  const index = winners.findIndex((winner) => id === winner.id);
-  if (index !== -1) {
-    winners.splice(index, 1);
-    return true;
-  }
-  return false;
-};
+export const deleteWinner = async (id: number) =>
+  await db.winner.delete({ where: { id }, select: { id: true } });
