@@ -10,7 +10,8 @@ const corsOptions: CorsOptions = {
   origin: [
     "http://192.168.43.5",
     "https://async-race-delta.vercel.app",
-    // "http://localhost:5173",
+    "http://localhost:5173",
+    "http://192.168.0.51:5173",
   ],
   credentials: true,
   allowedHeaders: "*",
